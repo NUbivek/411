@@ -120,8 +120,8 @@ Figure 9: Key data and ROC for Model 5
 
 Model 7 is also built using an automatic variable selection technique using the stepwise selection method. However, we have taken all 23 variables – both, character and numeric -- for this selection process. We created a class stage and added all imputed numeric and character and remaining categorical variables. The stepwise selection process did not eliminate any of the 23 variables and kept all variables for the model building process. The selection method resulted in an AIC of 7360.154 and log likelihood of 7296.15.
 
-![image](https://cloud.githubusercontent.com/assets/26909910/25583535/34b9dd76-2e60-11e7-9fab-74eeac764145.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583540/37df8d20-2e60-11e7-82d1-01f5158899e6.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583535/34b9dd76-2e60-11e7-9fab-74eeac764145.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583542/3abd65c6-2e60-11e7-84c6-0dc1193ce000.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583544/3cffac4a-2e60-11e7-956d-9868bf2af3a0.png)
 
