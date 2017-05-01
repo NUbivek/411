@@ -19,7 +19,6 @@ Figure 1: Variables’ list part of Proc Contents SAS output
 
 ![image](https://cloud.githubusercontent.com/assets/26909910/25581981/e21e210a-2e58-11e7-8db2-994f8e9f5524.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25581983/e5c641e8-2e58-11e7-92f2-fa5195b018e2.png)
-![image](https://cloud.githubusercontent.com/assets/26909910/25581987/e9e940fe-2e58-11e7-985c-72860f93af8c.png)
 
 Figure 2: Proc Univariate example – TEAM_BATTING_H (Part A)
 
