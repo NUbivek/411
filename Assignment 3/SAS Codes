@@ -1,0 +1,592 @@
+libname HW'/home/bivek0/my_courses/donald.wedding/c_8888/PRED411/UNIT03/HW' access=readonly;
+
+proc contents data=hw.wine; run;
+
+quit;
+
+/**proc print data=mydata.ames_housing_data; run; quit;
+**/
+proc print data=hw.wine (obs=10); run;
+
+quit;
+
+proc MEANS data=hw.wine MEAN MEDIAN MODE N NMISS STDDEV VARDEF=DF CLM;
+run;
+
+proc univariate data=hw.wine noprint; histogram TARGET;
+run;
+*proc means data=hw.wine p1 p99; data temp1;
+set hw.wine;
+TARGET_FLAG=(TARGET>0);
+run;
+
+data temp2;
+set temp1; TARGET_AMT=TARGET-1;
+
+ 
+
+
+run;
+ 
+if TARGET_FLAG=0 then
+TARGET_AMT=.;
+ 
+
+proc freq data=temp2;
+table TARGET_FLAG/missing;
+run;
+
+proc univariate data=temp2 noprint;
+ 
+histogram TARGET_AMT;
+run;
+
+/*********************************************VAR SELECTION**************************************** Step-wise selection method;
+proc reg data = temp2; model Target_AMT = FixedAcidity VolatileAcidity CitricAcid ResidualSugar Chlorides FreeSulfurDioxide TotalSulfurDioxide Density
+pH Sulphates Alcohol LabelAppeal AcidIndex STARS
+/selection=stepwise slentry=0.15 slstay=0.1; RUN;
+
+*Forward selection method; proc reg data = temp2; model Target_AMT = FixedAcidity
+VolatileAcidity CitricAcid ResidualSugar Chlorides FreeSulfurDioxide TotalSulfurDioxide Density
+pH Sulphates Alcohol LabelAppeal AcidIndex STARS
+/selection=forward slentry=0.15; RUN;
+
+*Backward selection method; proc reg data = temp2;
+model Target_AMT =
+ 
+FixedAcidity VolatileAcidity CitricAcid ResidualSugar Chlorides FreeSulfurDioxide TotalSulfurDioxide Density
+pH Sulphates Alcohol LabelAppeal AcidIndex STARS
+/selection=backward slstay=0.1; RUN;
+
+*Maxr selection method; proc reg data = temp2; model Target_AMT = FixedAcidity VolatileAcidity
+CitricAcid ResidualSugar Chlorides FreeSulfurDioxide TotalSulfurDioxide Density
+pH Sulphates Alcohol LabelAppeal AcidIndex STARS
+/selection=maxr best=10; RUN;
+
+*Mallow's CP selection method; proc reg data = temp2;
+model Target_AMT = FixedAcidity VolatileAcidity CitricAcid ResidualSugar Chlorides FreeSulfurDioxide TotalSulfurDioxide Density
+ 
+pH Sulphates Alcohol LabelAppeal AcidIndex STARS
+/selection=cp start=3 stop=8 best=10; RUN;
+**/
+*Adjrsq selection method;
+
+proc reg data=temp2;
+model Target_AMT=FixedAcidity VolatileAcidity CitricAcid ResidualSugar
+Chlorides FreeSulfurDioxide TotalSulfurDioxide Density pH Sulphates Alcohol LabelAppeal AcidIndex STARS /selection=adjrsq best=10;
+RUN;
+
+/*****************************************VAR SELECTION*****************************************/
+*checking to see how target flag class (0=Not sell, and 1 is sell) aligns with the star values;
+
+proc freq data=temp2;
+table STARS*TARGET_FLAG/missing;
+RUN;
+*running proc means to check the missing values in the selected variable set; proc means data=temp2 mean median nmiss min max;
+var VolatileAcidity ResidualSugar Chlorides TotalSulfurDioxide Density pH
+Alcohol LabelAppeal AcidIndex STARS;
+RUN;
+*checking to see how target flag class (0=Not sell, and 1 is sell) aligns with all selected variables; proc means data=temp2 mean median nmiss min max;
+class TARGET_FLAG;
+var VolatileAcidity ResidualSugar Chlorides TotalSulfurDioxide Density pH Alcohol LabelAppeal AcidIndex STARS;
+RUN;
+* 	; data temp3;
+set temp1; TARGET_AMT=TARGET-1;
+
+if TARGET_FLAG=0 then
+TARGET_AMT=.;
+ 
+*Filling in the missing values; IMP_ResidualSugar=ResidualSugar; IMP_Chlorides=Chlorides; IMP_TotalSulfurDioxide=TotalSulfurDioxide; IMP_pH=pH;
+IMP_Alcohol=Alcohol; IMP_STARS=STARS; M_STARS=0;
+
+if missing(ResidualSugar) then IMP_ResidualSugar=5.4187331;
+
+if missing(Chlorides) then
+IMP_Chlorides=0.0548225;
+
+if missing(TotalSulfurDioxide) then IMP_TotalSulfurDioxide=120.7142326;
+
+if missing(pH) then
+IMP_pH=3.2076282;
+
+if missing(Alcohol) then
+IMP_Alcohol=10.4892363;
+**We do this for STARS because we want to mark the stars;
+
+if missing(STARS) then
+do;
+ 
+
+
+end;
+
+/**keep TARGET_FLAG TARGET_AMT TARGET
+;
+ 
+IMP_STARS=0; M_STARS=1;
+ 
+
+keep	TARGET TARGET_FLAG TARGET_AMT
+VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density
+IMP_pH IMP_Alcohol LabelAppeal
+ 
+AcidIndex IMP_STARS M_STARS
+;
+run;
+*/
+proc print data=temp3 (obs=10); run;
+
+proc means data=temp3 mean median nmiss max min;
+var TARGET TARGET_FLAG TARGET_AMT VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS;
+run;
+
+proc univariate data=temp3 noprint;
+histogram VolatileAcidity IMP_ResidualSugar IMP_Chlorides
+IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS;
+run;
+
+data temp4;
+set temp3;
+
+if IMP_TotalSulfurDioxide	< -330 then IMP_TotalSulfurDioxide=-330;
+
+if IMP_TotalSulfurDioxide	> 630 then IMP_TotalSulfurDioxide=630;
+
+if VolatileAcidity < -1.2 then VolatileAcidity=-1.2;
+
+if VolatileAcidity > 2.4 then VolatileAcidity=2.4;
+
+if IMP_ResidualSugar < -76 then IMP_ResidualSugar=-76;
+
+if IMP_ResidualSugar > 84 then IMP_ResidualSugar=84;
+
+if Density < 0.924 then
+Density=0.924;
+
+if Density > 1.068 then
+Density=1.068;
+ 
+if IMP_Chlorides < -0.68 then IMP_Chlorides=-0.68;
+
+if IMP_Chlorides > 0.76 then IMP_Chlorides=0.76;
+
+if IMP_pH < 1.425 then
+IMP_pH=1.425;
+
+if IMP_pH > 4.575 then
+IMP_pH=4.575;
+
+if IMP_Alcohol < 1.5 then
+IMP_Alcohol=1.5;
+
+if IMP_Alcohol > 21.5 thne IMP_Alcohol=21.5;
+
+ 
+
+
+run;
+ 
+if AcidIndex > 14.6 then
+AcidIndex=14.6;
+ 
+
+proc print data=temp4 (obs=10); run;
+
+proc means data=temp4 mean median nmiss min max;
+var TARGET TARGET_FLAG TARGET_AMT VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS;
+run;
+
+proc univariate data=temp4 noprint;
+histogram VolatileAcidity IMP_ResidualSugar IMP_Chlorides
+IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS;
+run;
+*******PROC REG MODEL #1************************************************; proc reg data=temp4;
+model Target=VolatileAcidity IMP_ResidualSugar IMP_Chlorides
+IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS /selection=stepwise;
+output out=temp4 P=X_REGRESSION; RUN;
+quit;
+
+proc print data=temp4 (obs=10); var TARGET X_REGRESSION;
+ 
+RUN;
+************************************************************************;
+***scorefile for proc reg;
+
+data scorefile;
+set temp4; P_Regression=4.47092 +
+VolatileAcidity * (-0.10494) + IMP_Chlorides * (-0.12802) + IMP_TotalSulfurDioxide * (0.00024613)+ Density * (-0.83372) +
+IMP_pH * (-0.04250) +
+IMP_Alcohol * (0.01280) + LabelAppeal * (0.46674) + AcidIndex * (-0.20421) + IMP_STARS * (0.77860) + M_STARS * (-0.68959);
+
+proc print data=SCOREFILE(obs=10);
+var TARGET X_REGRESSION P_REGRESSION;
+run;
+
+******************Other models********************************;
+***Negative Binomial model FOR TARGET;
+
+proc genmod data=temp4;
+model Target=VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS /link=log dist=nb;
+output out=temp4 P=X_GENMOD;
+RUN;
+
+quit;
+
+proc print data=temp4 (obs=10); var TARGET X_GENMOD;
+RUN;
+
+proc print data=temp4(obs=10); run;
+*******************scoring the Genmod model alongside the regression model; data scorefile;
+set temp4; P_Regression=4.47092 +
+VolatileAcidity * (-0.10494) + IMP_Chlorides * (-0.12802) +
+ 
+IMP_TotalSulfurDioxide * (0.00024613)+ Density * (-0.83372) +
+IMP_pH * (-0.04250) +
+IMP_Alcohol * (0.01280) + LabelAppeal * (0.46674) + AcidIndex * (-0.20421) + IMP_STARS * (0.77860) + M_STARS * (-0.68959);
+P_GENMOD_NB=1.1950 +
+VolatileAcidity * (-0.0136)+
+IMP_ResidualSugar * (-0.0001)+ IMP_Chlorides * (-0.0233) + Density * (-0.3903) +
+IMP_pH * (0.0092) +
+IMP_Alcohol * (0.0094) + LabelAppeal * (0.2955) + AcidIndex * (-0.0204) + IMP_STARS * (0.1207) + M_STARS * (0.0344);
+P_GENMOD_NB = exp(P_GENMOD_NB);
+run;
+
+proc print data=scorefile (obs=10);
+VAR TARGET P_GENMOD_NB X_GENMOD P_REGRESSION;
+RUN;
+quit;
+****************Poission; proc genmod data=temp4;
+model Target=VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS /link=log dist=poi;
+output out=temp4 P=Y_GENMOD;
+RUN;
+
+
+proc print data=temp4 (obs=10); var TARGET Y_GENMOD;
+RUN;
+
+proc print data=temp4(obs=10); run;
+
+data scorefile; set temp4;
+
+P_Regression=4.47092 +
+ 
+VolatileAcidity * (-0.10494) + IMP_Chlorides * (-0.12802) + IMP_TotalSulfurDioxide * (0.00024613)+ Density * (-0.83372) +
+IMP_pH * (-0.04250) +
+IMP_Alcohol * (0.01280) + LabelAppeal * (0.46674) + AcidIndex * (-0.20421) + IMP_STARS * (0.77860) + M_STARS * (-0.68959)
+; P_GENMOD_NB=1.1950 +
+VolatileAcidity * (-0.0136)+
+IMP_ResidualSugar * (-0.0001)+ IMP_Chlorides * (-0.0233) + Density * (-0.3903) +
+IMP_pH * (0.0092) +
+IMP_Alcohol * (0.0094) + LabelAppeal * (0.2955) + AcidIndex * (-0.0204) + IMP_STARS * (0.1207) + M_STARS * (0.0344)
+;
+P_GENMOD_NB = exp(P_GENMOD_NB);
+
+P_GENMOD_POI=1.7978 +
+VolatileAcidity * (-0.0342)+
+IMP_ResidualSugar * (0.0001)+ IMP_Chlorides * (-0.0400) + IMP_TotalSulfurDioxide * (0.0001)+ Density * (-0.2861) +
+IMP_pH * (-0.0169) +
+IMP_Alcohol * (0.0036) + LabelAppeal * (0.1591) + AcidIndex * (-0.0814) + IMP_STARS * (0.1875) + M_STARS * (-0.6494)
+;
+P_GENMOD_POI = exp(P_GENMOD_POI);
+
+proc print data=scorefile (obs=10);
+VAR TARGET P_Regression P_GENMOD_NB P_GENMOD_POI Y_GENMOD;
+RUN;
+quit;
+
+***********************************************************************;
+**************ZIP (POI AND NB)***********
+*****************HURDLE******************************;
+ 
+****************lOGISTIC MODEL AND GENMOD MODEL FOR TARGET_FLAG AND TARGET_AMT;
+****key model FOR KNOWING THE PROBABILITY OF BUYING; PROC LOGISTIC DATA=temp4;
+MODEL TARGET_FLAG (ref="0") = VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS;
+OUTPUT OUT=temp4 p=X_LOGIT_PROB; RUN;
+
+proc print data=temp4 (obs=10); var TARGET_FLAG X_LOGIT_PROB; RUN;
+****key model FOR KNOWING HOW MUCH THEY ARE GOING TO BUY;
+proc genmod data=temp4;
+model TARGET_AMT=VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS /link=log dist=nb;
+output out=temp4 P=X_GENMOD_HURDLE;
+RUN;
+quit;
+
+proc print data=temp4 (obs=10);
+var TARGET_AMT X_GENMOD_HURDLE;
+RUN;
+
+proc print data=temp4(obs=10); run;
+
+******plugging in THE VALUE FOR lOGISTIC MODEL WITH GENMOD HURDLE MODEL COMBINED***;
+data scorefile; set temp4;
+P_Regression=4.47092 +
+VolatileAcidity * (-0.10494) + IMP_Chlorides * (-0.12802) + IMP_TotalSulfurDioxide * (0.00024613)+ Density * (-0.83372) +
+IMP_pH * (-0.04250) +
+IMP_Alcohol * (0.01280) + LabelAppeal * (0.46674) + AcidIndex * (-0.20421) + IMP_STARS * (0.77860) + M_STARS * (-0.68959)
+; P_GENMOD_NB=1.1950 +
+VolatileAcidity * (-0.0136)+
+IMP_ResidualSugar * (-0.0001)+ IMP_Chlorides * (-0.0233) + Density * (-0.3903) +
+ 
+IMP_pH * (0.0092) +
+IMP_Alcohol * (0.0094) + LabelAppeal * (0.2955) + AcidIndex * (-0.0204) + IMP_STARS * (0.1207) + M_STARS * (0.0344)
+;
+P_GENMOD_NB = exp(P_GENMOD_NB);
+
+P_GENMOD_POI=1.7978 +
+VolatileAcidity * (-0.0342)+
+IMP_ResidualSugar * (0.0001)+ IMP_Chlorides * (-0.0400) + IMP_TotalSulfurDioxide * (0.0001)+ Density * (-0.2861) +
+IMP_pH * (-0.0169) +
+IMP_Alcohol * (0.0036) + LabelAppeal * (0.1591) + AcidIndex * (-0.0814) + IMP_STARS * (0.1875) + M_STARS * (-0.6494)
+;
+P_GENMOD_POI = exp(P_GENMOD_POI);
+
+*******HURDLE MODEL;
+************************LOG tranformation for Hudle model;
+
+P_LOGIT_PROB = 3.2612	+
+VolatileAcidity	*(-0.1974)	+ IMP_ResidualSugar		*(0.00137)	+
+IMP_Chlorides	*(-0.1693)	+ IMP_TotalSulfurDioxide *(0.000958)	+  Density	*(-0.4951)	+
+IMP_pH	* (-0.2120)	+
+IMP_Alcohol	* (-0.0223) +
+LabelAppeal	* (-0.4643)	+ AcidIndex		*(-0.3941)	+
+IMP_STARS	* (2.5504)	+
+M_STARS	* (0.7303)
+;
+;
+***TAKING AWAY THE OUTLIERS AND EXTREMES;
+if P_LOGIT_PROB > 1000 then P_LOGIT_PROB = 1000; if P_LOGIT_PROB < -1000 then P_LOGIT_PROB = -1000;
+P_LOGIT_PROB = exp(P_LOGIT_PROB) / (1+exp(P_LOGIT_PROB));
+ 
+*************************************GENMOD HURDLE WITH LOGIT PROB;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+P_GENMOD_HURDLE = exp(P_GENMOD_HURDLE); P_TARGET = (P_LOGIT_PROB) * (P_GENMOD_HURDLE);
+P_Ensemble = (P_Regression + P_GENMOD_NB + P_GENMOD_POI + P_TARGET)/3;
+*if P_TARGET < 0 then P_TARGET = 0;
+
+*P_TARGET = round(P_TARGET, 1);
+
+*KEEP INDEX P_TARGET;
+
+proc print data=scorefile (obs=10);
+var TARGET P_Regression P_GENMOD_NB P_LOGIT_PROB P_GENMOD_POI P_TARGET P_Ensemble; run;
+
+
+
+proc univariate data=scorefile noprint;
+var P_Regression P_GENMOD_NB P_GENMOD_POI P_TARGET P_Ensemble; histogram;
+run;
+
+proc means mean median nmiss min max data=scorefile;
+var TARGET P_Regression P_GENMOD_NB P_GENMOD_POI P_TARGET P_Ensemble; run;
+ 
+Deployment Codes using Hurdle Model
+
+libname HW'/home/bivek0/my_courses/donald.wedding/c_8888/PRED411/UNIT03/HW' access=readonly;
+
+proc contents data=hw.wine_test; run;
+
+quit;
+
+proc print data=hw.wine_test (obs=10); run;
+
+quit;
+
+
+data temp1;
+set hw.wine_test; TARGET_FLAG=(TARGET>0);
+run;
+
+data temp2;
+set temp1; TARGET_AMT=TARGET-1;
+
+ 
+
+
+run;
+ 
+if TARGET_FLAG=0 then
+TARGET_AMT=.;
+ 
+
+
+proc freq data=temp2;
+table STARS*TARGET_FLAG/missing;
+RUN;
+
+
+data temp3;
+set temp1; TARGET_AMT=TARGET-1;
+
+if TARGET_FLAG=0 then
+TARGET_AMT=.;
+*Filling in the missing values; IMP_ResidualSugar=ResidualSugar; IMP_Chlorides=Chlorides; IMP_TotalSulfurDioxide=TotalSulfurDioxide; IMP_pH=pH;
+ 
+IMP_Alcohol=Alcohol; IMP_STARS=STARS; M_STARS=0;
+
+if missing(ResidualSugar) then IMP_ResidualSugar=5.4187331;
+
+if missing(Chlorides) then
+IMP_Chlorides=0.0548225;
+
+if missing(TotalSulfurDioxide) then IMP_TotalSulfurDioxide=120.7142326;
+
+if missing(pH) then
+IMP_pH=3.2076282;
+
+if missing(Alcohol) then
+IMP_Alcohol=10.4892363;
+**We do this for STARS because we want to mark the stars;
+
+if missing(STARS) then
+do;
+ 
+
+
+end;
+ 
+IMP_STARS=0; M_STARS=1;
+ 
+
+
+proc print data=temp3 (obs=10); run;
+
+
+data temp4;
+set temp3;
+
+if IMP_TotalSulfurDioxide	< -330 then IMP_TotalSulfurDioxide=-330;
+
+if IMP_TotalSulfurDioxide	> 630 then IMP_TotalSulfurDioxide=630;
+
+if VolatileAcidity < -1.2 then VolatileAcidity=-1.2;
+
+if VolatileAcidity > 2.4 then VolatileAcidity=2.4;
+
+if IMP_ResidualSugar < -76 then IMP_ResidualSugar=-76;
+ 
+
+if IMP_ResidualSugar > 84 then IMP_ResidualSugar=84;
+
+if Density < 0.924 then
+Density=0.924;
+
+if Density > 1.068 then
+Density=1.068;
+
+if IMP_Chlorides < -0.68 then IMP_Chlorides=-0.68;
+
+if IMP_Chlorides > 0.76 then IMP_Chlorides=0.76;
+
+if IMP_pH < 1.425 then
+IMP_pH=1.425;
+
+if IMP_pH > 4.575 then
+IMP_pH=4.575;
+
+if IMP_Alcohol < 1.5 then
+IMP_Alcohol=1.5;
+
+if IMP_Alcohol > 21.5 thne IMP_Alcohol=21.5;
+
+ 
+
+
+run;
+ 
+if AcidIndex > 14.6 then
+AcidIndex=14.6;
+ 
+
+proc print data=temp4 (obs=10); run;
+
+proc means data=temp4 mean median nmiss min max;
+var TARGET TARGET_FLAG TARGET_AMT VolatileAcidity IMP_ResidualSugar IMP_Chlorides IMP_TotalSulfurDioxide Density IMP_pH IMP_Alcohol LabelAppeal AcidIndex IMP_STARS M_STARS;
+run;
+
+
+************************************************************************;
+***scorefile for proc reg;
+******************Other models********************************;
+***Negative Binomial model FOR TARGET;
+*******************scoring the Genmod model alongside the regression model;
+****************Poission;
+***********************************************************************;
+ 
+**************ZIP (POI AND NB)***********
+*****************HURDLE******************************;
+****************lOGISTIC MODEL AND GENMOD MODEL FOR TARGET_FLAG AND TARGET_AMT;
+****key model FOR KNOWING THE PROBABILITY OF BUYING;
+
+******plugging in THE VALUE FOR lOGISTIC MODEL WITH GENMOD HURDLE MODEL COMBINED***;
+data scorefile; set temp4;
+P_Regression=4.47092 +
+VolatileAcidity * (-0.10494) + IMP_Chlorides * (-0.12802) + IMP_TotalSulfurDioxide * (0.00024613)+ Density * (-0.83372) +
+IMP_pH * (-0.04250) +
+IMP_Alcohol * (0.01280) + LabelAppeal * (0.46674) + AcidIndex * (-0.20421) + IMP_STARS * (0.77860) + M_STARS * (-0.68959)
+; P_GENMOD_NB=1.1950 +
+VolatileAcidity * (-0.0136)+
+IMP_ResidualSugar * (-0.0001)+ IMP_Chlorides * (-0.0233) + Density * (-0.3903) +
+IMP_pH * (0.0092) +
+IMP_Alcohol * (0.0094) + LabelAppeal * (0.2955) + AcidIndex * (-0.0204) + IMP_STARS * (0.1207) + M_STARS * (0.0344)
+;
+P_GENMOD_NB = exp(P_GENMOD_NB);
+
+P_GENMOD_POI=1.7978 +
+VolatileAcidity * (-0.0342)+
+IMP_ResidualSugar * (0.0001)+ IMP_Chlorides * (-0.0400) + IMP_TotalSulfurDioxide * (0.0001)+ Density * (-0.2861) +
+IMP_pH * (-0.0169) +
+IMP_Alcohol * (0.0036) + LabelAppeal * (0.1591) + AcidIndex * (-0.0814) + IMP_STARS * (0.1875) + M_STARS * (-0.6494)
+;
+P_GENMOD_POI = exp(P_GENMOD_POI);
+ 
+
+*******HURDLE MODEL;
+************************LOG tranformation for Hudle model;
+
+P_LOGIT_PROB = 3.2612	+
+VolatileAcidity	*(-0.1974)	+ IMP_ResidualSugar		*(0.00137)	+
+IMP_Chlorides	*(-0.1693)	+ IMP_TotalSulfurDioxide *(0.000958)	+  Density	*(-0.4951)	+
+IMP_pH	* (-0.2120)	+
+IMP_Alcohol	* (-0.0223) +
+LabelAppeal	* (-0.4643)	+ AcidIndex		*(-0.3941)	+
+IMP_STARS	* (2.5504)	+
+M_STARS	* (0.7303)
+;
+;
+***TAKING AWAY THE OUTLIERS AND EXTREMES;
+if P_LOGIT_PROB > 1000 then P_LOGIT_PROB = 1000; if P_LOGIT_PROB < -1000 then P_LOGIT_PROB = -1000;
+P_LOGIT_PROB = exp(P_LOGIT_PROB) / (1+exp(P_LOGIT_PROB));
+
+
+
+*************************************GENMOD HURDLE WITH LOGIT PROB;
+
+P_GENMOD_HURDLE = exp(P_GENMOD_HURDLE); P_TARGET = (P_LOGIT_PROB) * (P_GENMOD_HURDLE);
+P_Ensemble = (P_Regression + P_GENMOD_NB + P_GENMOD_POI + P_TARGET)/3;
+*if P_TARGET < 0 then P_TARGET = 0;
+
+*P_TARGET = round(P_TARGET, 1);
+ 
+
+KEEP INDEX P_TARGET;
+/**
+proc print data=scorefile (obs=10);
+var TARGET P_Regression P_GENMOD_NB P_LOGIT_PROB P_GENMOD_POI P_TARGET P_Ensemble; run;
+**/
+proc print data=scorefile (obs=10); run;
+
+proc export data= SCOREFILE outfile='/home/bivek0/AssignmentData/scorecard_wine2.csv' dbms=csv
+replace; run;
