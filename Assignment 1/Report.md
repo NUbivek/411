@@ -1,4 +1,4 @@
-**Introduction:**
+#Introduction:
 
 MONEYBALL data set has a total of 2276 observations, and 17 variables (namely: TEAM_BATTING_H, TEAM_BATTING_2B, TEAM_BATTING_3B, TEAM_BATTING_HR, TEAM_BATTING_BB, TEAM_BATTING_SO, TEAM_BASERUN_SB, TEAM_BASERUN_CS, TEAM_BATTING_HBP,    TEAM_PITCHING_H,    TEAM_PITCHING_HR,    TEAM_PITCHING_BB, TEAM_PITCHING_SO, TEAM_FIELDING_E, and TEAM_FIELDING_DP). Each of these variables has either a positive or a negative impact on the overall wins. The attached data dictionary elaborates in detail the specifics of the variable’s impact on overall wins.
 
@@ -6,7 +6,7 @@ We divided this data study project into four major segments: understanding the d
 
 After understanding the layout of the data set and completing the preparatory exercises, we were ready to build and test models. We built different models and tested them for accuracy and fit. We went through an iterative process of selecting different variables, and testing them against different models to evaluate the fit. Ultimately, we were able to decide on the “best” model based on the R-squared value, and Adjusted R-squared value, among other statistical matrices, produced by the respective models. The best fitting model was then deployed in the test data set to predict the number of target wins.
  
-**Understanding the Data:**
+#Understanding the Data:
 
 In order to understand the attributes of the data set, we ran a “Proc contents” analysis is SAS. We were able to learn that 15 out of 17 data sets were numerical in nature, and rests were character in nature. We also learned that 2 out of 17 variables, the same character variables, have majority, if not all, of data fields that are missing and/or cannot be used for further analysis. Therefore, we need to drop the two data sets for further analysis. Figure 1 below shows a part of the Proc Contents SAS output.
 
