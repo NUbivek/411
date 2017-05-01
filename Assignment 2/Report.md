@@ -63,8 +63,8 @@ As evident in the Means procedure output above, we have also replaced many of th
 
 
 ![image](https://cloud.githubusercontent.com/assets/26909910/25582918/9863ef0e-2e5d-11e7-8c8c-4848a5506818.png)
-![image](https://cloud.githubusercontent.com/assets/26909910/25582931/a4d9c5b0-2e5d-11e7-8f5a-898b012b044c.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25582935/a8421446-2e5d-11e7-8cd6-d0173a46dc63.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583040/1856e41e-2e5e-11e7-8270-996ba5a9e4e4.png)
 
 Figure 5 (Part A): Freq procedure results for TARGET_FLAG for character variables
 
