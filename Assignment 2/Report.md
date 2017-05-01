@@ -75,7 +75,55 @@ Figure 5 (Part A): Freq procedure results for TARGET_FLAG for character variable
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583091/4b59f2fc-2e5e-11e7-90d9-2face6660551.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583092/4eabae82-2e5e-11e7-9f7d-98749dc02086.png)
 
-
 Figure 5 (Part B): Proc Freq procedure results for TARGET_FLAG for key character variables
 
+Above result from Proc Freq procedure clearly show that we are on a right track. We have weighed in key variables that significantly affect the crash rates. This step now allows us to incorporate these variables into our model building process. We will now be able to make a more educated estimate on what variables to consider and what to avoid.
+ 
+## Models Building and Comparison:
+
+During the data preparation stage, we tested various different variables and their respective influence in predicting the crash rates. We will now incorporate the findings to build and test eight different models in this section. We will only present the details and visualization for 3 competitive models, but the summary table below will summarize the key findings of all eight models.
+
+
+![4q453q](https://cloud.githubusercontent.com/assets/26909910/25583288/29adc0ec-2e5f-11e7-80d4-463a8b5b88a3.PNG)
+
+Figure 6: Side-by-side comparison of eight models prepared as a part of this
+
+### Model 1:
+
+Amongst the eight models we built, Model 1 is built using an automatic variable selection technique using the stepwise selection method for all numeric and one (JOB_WHITE_COLLAR) dummy character variable. The stepwise selection method selected 10 variables and resulted in AIC of 9049.609 and log likelihood of 9045.609.
+
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25583310/42029ad2-2e5f-11e7-9650-b5d030498a71.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583315/456dd736-2e5f-11e7-994c-87b911a1e14b.png)
+
+Figure 7: Key data for Model 1
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25583336/5af4c902-2e5f-11e7-858d-de7ae9bb39ad.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583339/5d2ab2cc-2e5f-11e7-8e32-f501fc41bfe9.png)
+
+Figure 8: ROC curve for selected and all model-building steps for Model 1
+
+### Model 5:
+
+After building the first step-wise model, we quickly used other automatic variable selection techniques and build 4 other models. We used Mallow’s CP and two manual selection methods and built Model 2,3, and 4 discussed in the summary table above.
+We would like to skip to the Model 5 and discuss the details of Model 5 here.
+
+Model 5 was built using a manual selection method by first testing all 23 variables, and then based on their performance and effect on the predictability of the crash, we selected 13 high-impact variables. The 13 variables included a mix of character, numeric and imputed variables. Upon running the model, we obtained an AIC of 7605.927 and log likelihood of 7569.927.
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25583447/cc631ecc-2e5f-11e7-90e4-5c4a9fbd5f4a.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583450/d0b5a5bc-2e5f-11e7-9397-059f6aeebdb2.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583456/d34964d0-2e5f-11e7-8eca-b2c8ecb2e44c.png)
+
+Figure 9: Key data and ROC for Model 5
+
+### Model 7:
+
+Model 7 is also built using an automatic variable selection technique using the stepwise selection method. However, we have taken all 23 variables – both, character and numeric -- for this selection process. We created a class stage and added all imputed numeric and character and remaining categorical variables. The stepwise selection process did not eliminate any of the 23 variables and kept all variables for the model building process. The selection method resulted in an AIC of 7360.154 and log likelihood of 7296.15.
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25583535/34b9dd76-2e60-11e7-9fab-74eeac764145.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583540/37df8d20-2e60-11e7-82d1-01f5158899e6.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583542/3abd65c6-2e60-11e7-84c6-0dc1193ce000.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583544/3cffac4a-2e60-11e7-956d-9868bf2af3a0.png)
+
+Figure 10: Key data and ROC curve for Model 7
 
