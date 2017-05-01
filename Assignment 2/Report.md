@@ -13,6 +13,7 @@ In order to understand the attributes of the data set, we ran a “Proc contents
 
 
 ![image](https://cloud.githubusercontent.com/assets/26909910/25582712/a70f4ef0-2e5c-11e7-89b2-16c17f4a5668.png)
+
 Figure 1: A “Birds-eye” view of all variables
 
 In order to further understand the structure of the data and fields within the character variables, we ran a “Proc Freq” analysis on every single character variable. We identified basic frequency related measures such as Frequency, Percentage, Cumulative frequency, and Cumulative percentage for each of the 10 character variables. Figure 2 (Part A and Part B) below shows the result of the Proc Freq analysis for each of the 10 character variables.
@@ -25,3 +26,49 @@ Figure 2: Proc FREQ procedure (Part A)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25582750/c35e8490-2e5c-11e7-8eab-63a091f97aab.png)
 
 Figure 2: Proc FREQ procedure (Part B)
+
+Proc Freq analysis of the 10 character variables gave us a good idea of the composition of the data set, frequency of each of the sub-fields, and missing numbers on the character variables. However, we need similar information of the numeric variables. We also need to explore the basic statistical measures on all variables, and identify the key mean, median, mode, standard deviation, minimum, lower and upper 95%, and missing values. Therefore, we run a Proc Means procedure to further evaluate the data set.
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25582838/3465ee1c-2e5d-11e7-886d-2d1259caeadd.png)
+
+Figure 3: The Means procedure before preparing data
+
+From the Proc Means procedure in Figure 3, we are able to identify four variables (YOJ, INCOME, HOME_VAL, and CAR_AGE) with a lot of missing entries. We need to address the missing data before relying on these numbers in its entirety. We will address the missing data in the data preparation section, but it is important to note that the mean, median, mode, and standard deviation presented above may change as we address the missing data. In fact, we will runt he Proc Means procedure in the data preparation section again to see how the same Means Procedure produces a totally different result table when we clean the data.
+
+## Preparing the Data:
+
+This is the step where we address all of the issues identified and discussed in the Understanding the data stage. We begin by filling up the missing values. As identified above, there are four variables with missing data -- YOJ, INCOME, HOME_VAL, and CAR_AGE. We start by finding the mean for YOJ, and fill the missing fields with the YOJ mean (45).
+Similarly, we identify the mean for all of the remaining variables and fill in the missing fields with their respective means. We use the decision tree (combination of If and else statements) to fill in the missing values.
+After addressing the missing values, we address other inconsistencies/outliers in the dataset. Some of the inconsistencies/outliers we identified and treated as shown below:
+
+  1.	Home value of more than $700,000 (We deleted these values)
+
+  2.	Car value of more than $70,000 (We deleted these values)
+
+  3.	Travel time higher than 130 (We deleted these values)
+
+  4.	Income or more than $180,000 were equated to $180,000
+
+  5.	Jobs were categorized into two major groups – Blue Collar and White Collar 
+  
+As we curated the inconsistencies and outliers as shown above, the missing values were flagged to make sure that we are able to identify the missing values later on.
+ 
+We then run a Proc Means procedure again to check to see if all major evident issues were addressed. Figure 4 below shows the Mean procedure with no missing values.
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25582903/8661666a-2e5d-11e7-8752-f131ddc5ab2b.png)
+
+Figure 4: The Means procedure after preparing the data -- with no missing values
+
+As evident in the Means procedure output above, we have also replaced many of the variables with the imputed dummy variables, and flagged the missing values. We do not have any values missing, and the data appears to be a lot cleaner than what we initially had. Before jumping to building models, we want to test to see if the key character variables represent the data they way we hypothesized early on. Figure 5 below presents the crash prediction for the TARGET_FLAG.
+
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25582918/9863ef0e-2e5d-11e7-8c8c-4848a5506818.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25582931/a4d9c5b0-2e5d-11e7-8f5a-898b012b044c.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25582935/a8421446-2e5d-11e7-8cd6-d0173a46dc63.png)
+
+Figure 5 (Part A): Freq procedure results for TARGET_FLAG for character variables
+
+
+
+
+
