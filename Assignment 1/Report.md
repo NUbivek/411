@@ -23,6 +23,8 @@ In order to understand the attributes of the data set, we ran a “Proc contents
 
    Figure 2: Proc Univariate example – TEAM_BATTING_H (Part A)
 
+
 ![image](https://cloud.githubusercontent.com/assets/26909910/25582094/6c29adc4-2e59-11e7-839f-6b8fcfeb0dcc.png)
-![image](https://cloud.githubusercontent.com/assets/26909910/25582097/6ffba06a-2e59-11e7-9df9-9ca3b5441377.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25582101/7294be42-2e59-11e7-938a-b2c88a7dc5d2.png)
+  Figure 2: Proc Univariate example – TEAM_BATTING_H (Part B)
+
