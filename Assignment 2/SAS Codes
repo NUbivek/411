@@ -1,0 +1,271 @@
+libname HW'/home/bivek0/my_courses/donald.wedding/c_8888/PRED411/UNIT02/HW' access=readonly;
+
+proc contents data=hw.logit_insurance; run;
+
+quit;
+
+proc freq data=hw.logit_insurance; table _character_;
+run;
+
+proc print data=hw.logit_insurance (obs=10); run;
+
+quit;
+
+proc MEANS data=hw.logit_insurance MEAN MEDIAN MODE N NMISS MIN STDDEV VARDEF=DF CLM;
+run;
+
+data TEMPFILE1;
+set hw.logit_insurance; IMP_AGE=AGE;
+
+if missing(IMP_AGE) then
+IMP_AGE=45; IMP_INCOME=INCOME; M_INCOME=0;
+
+if missing(IMP_INCOME) then do;
+ 
+
+end;
+ 
+IMP_INCOME=61898; M_INCOME=1;
+ 
+
+if IMP_INCOME > 180000 then IMP_INCOME=180000;
+
+if IMP_INCOME > 300000 then delete;
+IMP_HOME_VAL=HOME_VAL;
+
+if missing(IMP_HOME_VAL) then IMP_HOME_VAL=154876;
+ 
+
+if IMP_HOME_VAL > 700000 then delete;
+
+if TRAVTIME > 130 then delete;
+
+if BLUEBOOK > 70000 then
+delete; IMP_YOJ=YOJ;
+
+if missing(IMP_YOJ) then
+IMP_YOJ=10.49; IMP_CAR_AGE=CAR_AGE;
+
+if missing(IMP_CAR_AGE)then IMP_CAR_AGE=8.32;
+IMP_JOB=JOB;
+
+if missing(IMP_JOB) then
+do;
+
+if IMP_INCOME > 100000 then IMP_JOB="Doctor";
+else if IMP_INCOME >87000 then IMP_JOB="LAWYER";
+else if IMP_INCOME > 86000 then IMP_JOB="Manager";
+else if IMP_INCOME > 75000 then IMP_JOB="Professional";
+ 
+
+end;
+ 
+else
+ 
+
+IMP_JOB="z_Blue Collar";
+ 
+JOB_WHITE_COLLAR=IMP_JOB in ("Doctor", "Lawyer", "Manager", "Professional"); drop AGE;
+drop INCOME; drop HOME_VAL; drop YOJ;
+drop CAR_AGE; drop JOB;
+*drop RED_CAR;
+*drop URBANICITY;
+
+proc means data=TEMPFILE1 MEAN MEDIAN MODE N NMISS STDDEV VARDEF=DF CLM;
+proc univariate data=tempfile1; class  TARGET_FLAG; var IMP_INCOME;
+histogram;
+ 
+run;
+
+proc univariate data=tempfile1; class  TARGET_FLAG; var _numeric_; histogram;
+run;
+
+proc freq data=tempfile1;
+table (_character_) * TARGET_FLAG;
+run;
+
+******MODEL 1 --regular stepwise without character variable;
+*****Model that the guy WILL NOT crash the car, where ref#0 meaning that the guy will crash the car;
+
+proc logistic data=tempfile1 plot(only)=(roc(ID=prob));
+model TARGET_FLAG(ref="0")=JOB_WHITE_COLLAR KIDSDRIV HOMEKIDS TRAVTIME BLUEBOOK TIF OLDCLAIM CLM_FREQ MVR_PTS IMP_AGE IMP_YOJ M_INCOME
+ 
+IMP_INCOME
+
+run;
+ 
+
+IMP_HOME_VAL IMP_CAR_AGE /selection=stepwise roceps=0.1;
+ 
+
+***Model 2 -- regular r squared without character;
+****MCP Adjusted R squared;
+
+proc logistic data=tempfile1 plot(only)=(roc(ID=prob));
+model TARGET_FLAG(ref="0")=JOB_WHITE_COLLAR KIDSDRIV HOMEKIDS TRAVTIME BLUEBOOK TIF OLDCLAIM CLM_FREQ MVR_PTS IMP_AGE IMP_YOJ M_INCOME
+ 
+IMP_INCOME
+
+run;
+ 
+
+IMP_HOME_VAL IMP_CAR_AGE /best=5 roceps=0.1;
+ 
+
+***MODEL 3 -- manual with character
+**Model with a class statement, where SAS will compare within the class IMP_JOB betwen blue collar to white collar jobs;
+
+proc logistic data=tempfile1 plot(only)=(roc(ID=prob));
+class CAR_USE (param=ref) IMP_JOB (param=ref) CAR_TYPE(param=ref) EDUCATION (param=ref) MSTATUS(param=ref) RED_CAR(param=ref)
+REVOKED(param=ref) SEX(param=ref) URBANICITY(param=ref) PARENT1(param=ref); model TARGET_FLAG(ref="0")=IMP_JOB CAR_USE CAR_TYPE EDUCATION MSTATUS RED_CAR
+REVOKED SEX URBANICITY PARENT1 BLUEBOOK CAR_USE CLM_FREQ HOMEKIDS IMP_HOME_VAL IMP_INCOME IMP_JOB OLDCLAIM TRAVTIME KIDSDRIV TIF MVR_PTS IMP_AGE IMP_YOJ IMP_CAR_AGE /roceps=0.1;
+run;
+
+**Model 4 --- manual with only two variables;
+ 
+proc logistic data=tempfile1 plot(only)=(roc(ID=prob)); class JOB_WHITE_COLLAR/param=ref;
+model TARGET_FLAG(ref="0")=JOB_WHITE_COLLAR IMP_INCOME /roceps=0.1;
+run;
+
+**Model 5 --- Allegedly the BEST MODEL, MANUAL with character and very precisely selected variables;
+**Model with a class statement, where SAS will compare within the class IMP_JOB betwen blue collar to white collar jobs;
+
+proc logistic data=tempfile1 plot(only)=(roc(ID=prob)); class CAR_USE/param=ref;
+class JOB_WHITE_COLLAR/param=ref; class CAR_TYPE /param=ref;
+class MSTATUS/param=ref; clas REVOKED/param=ref; class SEX/param=ref;
+class URBANICITY/param=ref; class PARENT1/param=ref;
+model TARGET_FLAG(ref="0")=CAR_USE CAR_TYPE MSTATUS REVOKED SEX URBANICITY PARENT1 CAR_USE HOMEKIDS IMP_INCOME OLDCLAIM CLM_FREQ KIDSDRIV MVR_PTS
+/roceps=0.1;
+run;
+
+***Model 6 -- manual with only income;
+
+proc logistic data=tempfile1 plot(only)=(roc(ID=prob));
+model TARGET_FLAG(ref="0")=IMP_INCOME /roceps=0.1;
+run;
+
+****Model 7 stepwise with all character and other varaibles; proc logistic data=tempfile1 plot(only)=(roc(ID=prob));
+class CAR_USE (param=ref) IMP_JOB (param=ref) CAR_TYPE(param=ref) EDUCATION (param=ref) MSTATUS(param=ref) RED_CAR(param=ref)
+REVOKED(param=ref) SEX(param=ref) URBANICITY(param=ref) PARENT1(param=ref); model TARGET_FLAG(ref="0")=IMP_JOB CAR_USE CAR_TYPE EDUCATION MSTATUS RED_CAR
+REVOKED SEX URBANICITY PARENT1 BLUEBOOK CAR_USE CLM_FREQ HOMEKIDS IMP_HOME_VAL IMP_INCOME IMP_JOB OLDCLAIM TRAVTIME KIDSDRIV TIF MVR_PTS
+IMP_AGE IMP_YOJ IMP_CAR_AGE /selection=stepwise roceps=0.1;
+run;
+
+****Model 8 adj-rsquared with all character and other varaibles; proc logistic data=tempfile1 plot(only)=(roc(ID=prob));
+class CAR_USE (param=ref) IMP_JOB (param=ref) CAR_TYPE(param=ref) EDUCATION (param=ref) MSTATUS(param=ref) RED_CAR(param=ref)
+REVOKED(param=ref) SEX(param=ref) URBANICITY(param=ref) PARENT1(param=ref); model TARGET_FLAG(ref="0")=IMP_JOB CAR_USE CAR_TYPE EDUCATION MSTATUS RED_CAR
+ 
+
+
+
+run;
+ 
+REVOKED SEX URBANICITY PARENT1 BLUEBOOK CAR_USE CLM_FREQ HOMEKIDS IMP_HOME_VAL IMP_INCOME IMP_JOB OLDCLAIM TRAVTIME KIDSDRIV TIF MVR_PTS
+IMP_AGE IMP_YOJ IMP_CAR_AGE / best=5 roceps=0.1;
+ 
+
+*************************SCORE OUT AND DEPLOY**********************;
+****Import test data and Prep data first;
+
+data testdata;
+set hw.logit_insurance_test;
+
+*****add the conditions from the train data; IMP_AGE=AGE;
+
+if missing(IMP_AGE) then
+IMP_AGE=45; IMP_INCOME=INCOME; M_INCOME=0;
+
+if missing(IMP_INCOME) then do;
+ 
+
+end;
+ 
+IMP_INCOME=61898; M_INCOME=1;
+ 
+
+if IMP_INCOME > 180000 then IMP_INCOME=180000;
+
+if IMP_INCOME > 300000 then delete;
+IMP_HOME_VAL=HOME_VAL;
+
+if missing(IMP_HOME_VAL) then IMP_HOME_VAL=154876;
+
+if IMP_HOME_VAL > 700000 then delete;
+
+if TRAVTIME > 130 then delete;
+
+if BLUEBOOK > 70000 then
+delete; IMP_YOJ=YOJ;
+
+if missing(IMP_YOJ) then
+IMP_YOJ=10.49; IMP_CAR_AGE=CAR_AGE;
+ 
+
+if missing(IMP_CAR_AGE)then IMP_CAR_AGE=8.32;
+IMP_JOB=JOB;
+
+if missing(IMP_JOB) then
+do;
+
+if IMP_INCOME > 100000 then IMP_JOB="Doctor";
+else if IMP_INCOME >87000 then IMP_JOB="LAWYER";
+else if IMP_INCOME > 86000 then IMP_JOB="Manager";
+else if IMP_INCOME > 75000 then IMP_JOB="Professional";
+ 
+
+end;
+ 
+else
+ 
+
+IMP_JOB="z_Blue Collar";
+ 
+JOB_WHITE_COLLAR=IMP_JOB in ("Doctor", "Lawyer", "Manager", "Professional"); drop AGE;
+drop INCOME; drop HOME_VAL; drop YOJ;
+drop CAR_AGE; drop JOB;
+*drop RED_CAR;
+
+****deploy the best model to test; YHAT =
+-1.4354 +
+0.8897*(CAR_USE in ("Commercial")) +
+-0.8842*(CAR_TYPE in ("Minivan")) +
+-0.7780*(CAR_TYPE in ("Panel Truck"))+
+-0.3713*(CAR_TYPE in ("Pickup"))+
+0.2449*(CAR_TYPE in ("Sports Car"))+
+-0.4877*(CAR_TYPE in ("Van"))+
+-0.6275*(MSTATUS in ("Yes"))+
+-0.9080*(REVOKED in ("Yes"))+ 0.2193*(SEX in ("M"))+
+2.1119*(URBANICITY in ("Yes"))+
+-0.3135*(PARENT1 in ("N"))+ 0.0902* HOMEKIDS +
+-0.00001*IMP_INCOME +
+-0.00001*OLDCLAIM + 0.2025*CLM_FREQ +
+0.3540*KIDSDRIV+
+0.1217*MVR_PTS
+ 
+;
+
+YHAT = exp( YHAT ); P_TARGET_FLAG = YHAT / (1+YHAT);
+run;
+
+proc print data=testdata; var INDEX P_TARGET_FLAG;
+run;
+****Build a second model for insurance amount; data testamt;
+set testdata;
+P_TARGET_AMT = 1504.32 +
+(P_TARGET_FLAG*OLDCLAIM);
+keep INDEX P_TARGET_FLAG P_TARGET_AMT;
+run; quit;
+
+proc print data=testamt;
+var INDEX P_TARGET_FLAG P_TARGET_AMT;
+run;
+
+proc print data=testamt;
+var INDEX P_TARGET_FLAG P_TARGET_AMT;
+run;
+
+****Export the data set;
+
+proc export data=testamt(keep=INDEX P_TARGET_FLAG P_TARGET_AMT) outfile='/home/bivek0/Assignment Data/unit2final.csv' dbms=csv;
+replace;
+run;
