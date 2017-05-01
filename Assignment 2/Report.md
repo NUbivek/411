@@ -127,3 +127,49 @@ Model 7 is also built using an automatic variable selection technique using the 
 
 Figure 10: Key data and ROC curve for Model 7
 
+## Model Selection:
+
+In each of the models above, the estimate column next to the variable names reflects the effect and the magnitude of the effect of the respective variables on the overarching goal of predicting the crash probability. The positive numbers represent that the variable favors the crash probability; meaning increases the chances of crash. Whereas, the negative number denotes that the respective variable actually reduces the chances of crash. These variables and their respective numbers are the predictor variables and coefficients, respectively. The intercept number on the top of the estimates is the y-intercept of the model.
+
+We now look at the indicators deduced from the models above to determine which model is the best model for our analysis. We will then develop a model formula and deploy it in subsequent exercise. The AIC, Log Likelihood, and ROC value of the above models are key measures to help us make a decision on the best model to predict the probability of a crash. The variable we are trying to predict is the TARGET_FLAG variable.
+
+AIC measures the degree of an estimate of the loss of information during the data generation and modeling stages. Looking at the above measures for all eight models, Model 5 seems to minimize the information lost and/or the impact of the lost information. In addition, the impact of individual variables in Model 5 is significantly higher and there is a very few wasted variables in the analysis process. Therefore, this promotes the goodness of fit, and helps us deliver better predictions. Based on these reasons, we decide to proceed with Model 5.
+
+Therefore the equation representing Model 5 is as follows:
+
+    YHAT = -1.4354+0.8897*(CAR_USE in ("Commercial")) -0.8842*(CAR_TYPE in ("Minivan")) -0.7780
+    *(CAR_TYPE in ("Panel Truck")) -0.3713*  (CAR_TYPE in ("Pickup"))+0.2449*(CAR_TYPE in ("Sports Car"))-0.4877
+    *(CAR_TYPE in ("Van"))-0.6275*(MSTATUS in ("Yes"))-0.9080*(REVOKED in ("Yes"))+0.2193
+    *(SEX in ("M"))+2.1119*(URBANICITY in ("Yes"))-0.3135*(PARENT1 in ("N"))+0.0902
+    *HOMEKIDS - 0.00001*IMP_INCOME -0.00001*OLDCLAIM +0.2025*CLM_FREQ +0.3540*KIDSDRIV+0.1217*MVR_PTS
+
+Figure 11: Best fitting model deployed and scored
+
+## Standalone Predictive Model Application:
+
+Upon selecting the best logistic model to fit the dataset, we used a test data set to deploy the above model, Model 5. We first loaded the test dataset, and then used the exact same data preparation steps to prepare the test dataset. The test dataset has to match exactly to the training dataset. Therefore, we prepared the dataset using the same criterion, and then first used YHAT to store the output generated from deploying the model. Upon storing the values in YHAT, we then converted the YHAT to P_TARGET_FLAG to store the probability of crashing the vehicles. Figure 12 below shows a sample of 15 observations and their respective P_TARGET_FLAG values.
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25583715/ffde720a-2e60-11e7-82ac-e4f301f71ca3.png)
+
+Figure 12: Sample (15) observations from P_TARGET_FLAG deployment
+
+
+Upon determining the P_TARGET_FLAG values, we developed a second model to predict the value of P_TARGET_AMT. P_TARGET_AMT predicts the respective cost of insurance for each individual observation. We used a mix of two variables to build the model.
+
+    P_TARGET_AMT = 1504.32+(P_TARGET_FLAG*OLDCLAIM);
+
+Figure 13: P_TARGET_AMT model
+
+We took the mean value of TARGET_AMT in the training data set and added the product of the crash probability (P_TARGET_AMT) and number of claims made by the individual in last 5 years (OLDCLAIM). This model is useful, particularly, in determining and offsetting the cost of high-risk observations. The logic of charging above average cost of insurance for high-risk customers based on their driving records and probability to crash provides a good estimate of the premium to be charged. Figure 14 below shows a side-by- side comparison of the P_TARGET_AMT and P_TARGET_FLAG output of 15 sample observations. The complete list of the model output and deployment is attached separately with the final submission.
+
+![image](https://cloud.githubusercontent.com/assets/26909910/25583743/27045b60-2e61-11e7-83cd-1ad5bb9ed018.png)
+
+Figure 14: Sample (15) observations from P_TARGET_FLAG and P_TARGET_AMT deployment
+
+## Conclusion:
+
+Following the steps one through four – Understanding the data to deploying the model, we were able to come up with a fairly accurate logistic prediction model and output indicated by the statistical measures stated above. We explored eight possible models, and selected the one that fits the best for the dataset.
+
+It is important to note that, while our “best” model takes into account many different important facets of determining the probability for a crash from the available datasets, it might not be the ultimate truth. There are many variables, and we have taken the ones that best reflected the opportunity to accurately predict the crash probability. Therefore, while comparing against the models that included somewhere from every single variable to only one variable, this model is significantly more relevant and accurate.
+
+In addition, the best fitting model also helps to remove the fog and provide a relevant correlative insight into the two variables – URBANICITY and PARENT1 –whose theoretical significance were unknown. The model proves that both of these variables are strong predictors of the crash probability. Finally, all 13 variables used in the best fitting model match and support the theoretical correlation with the reality of the insurance industry. Hence, this model can be trusted and used.
