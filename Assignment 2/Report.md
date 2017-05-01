@@ -71,9 +71,10 @@ Figure 5 (Part A): Freq procedure results for TARGET_FLAG for character variable
 
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583082/42f45ad0-2e5e-11e7-87e1-cf984bd00314.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583088/475bfa74-2e5e-11e7-88a4-f65072e85d98.png)
+![image](https://cloud.githubusercontent.com/assets/26909910/25583091/4b59f2fc-2e5e-11e7-90d9-2face6660551.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583096/520a8300-2e5e-11e7-88d2-b9386148ecd9.png)
 ![image](https://cloud.githubusercontent.com/assets/26909910/25583092/4eabae82-2e5e-11e7-9f7d-98749dc02086.png)
-![image](https://cloud.githubusercontent.com/assets/26909910/25583091/4b59f2fc-2e5e-11e7-90d9-2face6660551.png)
+
 
 Figure 5 (Part B): Proc Freq procedure results for TARGET_FLAG for key character variables
 
